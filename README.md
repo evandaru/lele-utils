@@ -1,4 +1,4 @@
-# dev-utils — Developer Workstation Toolkit
+# lele-dev — Developer Workstation Toolkit
 
 TUI + CLI toolkit untuk inspeksi workstation developer di **macOS & Linux**.
 Satu tempat interaktif untuk pekerjaan yang biasanya butuh banyak command
@@ -17,8 +17,8 @@ Satu tempat interaktif untuk pekerjaan yang biasanya butuh banyak command
 ## Install & Run
 
 ```bash
-go run ./cmd/dev-utils          # development
-make build && ./dev-utils       # binary lokal
+go run ./cmd/lele-dev          # development
+make build && ./lele-dev       # binary lokal
 make install                    # go install
 ```
 
@@ -26,14 +26,14 @@ Cross compile (PRD §30-31):
 
 ```bash
 make cross
-# dev-utils-linux-amd64, dev-utils-linux-arm64,
-# dev-utils-darwin-amd64, dev-utils-darwin-arm64
+# lele-dev-linux-amd64, lele-dev-linux-arm64,
+# lele-dev-darwin-amd64, lele-dev-darwin-arm64
 ```
 
 ## TUI
 
 ```bash
-dev-utils
+lele-dev
 ```
 
 | Key | Aksi |
@@ -56,25 +56,25 @@ System (CPU/RAM/disk + environment dengan secrets disembunyikan).**
 ## CLI (non-interaktif, script/CI/AI-agent friendly)
 
 ```bash
-dev-utils ports            # list listening ports
-dev-utils ports 3000       # detail port 3000
-dev-utils process          # list processes (alias: processes, ps)
-dev-utils process 18231    # detail PID
-dev-utils runtimes         # detect runtimes + versi + path
-dev-utils network          # interfaces, gateway, DNS
-dev-utils doctor           # diagnostic environment (✓/⚠/✗ + ringkasan)
-dev-utils tools            # dev tools
-dev-utils system           # CPU/RAM/disk/OS
-dev-utils project [dir]    # detect project
-dev-utils containers       # docker/podman ps
-dev-utils cleanup          # kandidat dev ports
-dev-utils cleanup --kill 3000,5173 --yes   # kill eksplisit (wajib --yes)
+lele-dev ports            # list listening ports
+lele-dev ports 3000       # detail port 3000
+lele-dev process          # list processes (alias: processes, ps)
+lele-dev process 18231    # detail PID
+lele-dev runtimes         # detect runtimes + versi + path
+lele-dev network          # interfaces, gateway, DNS
+lele-dev doctor           # diagnostic environment (✓/⚠/✗ + ringkasan)
+lele-dev tools            # dev tools
+lele-dev system           # CPU/RAM/disk/OS
+lele-dev project [dir]    # detect project
+lele-dev containers       # docker/podman ps
+lele-dev cleanup          # kandidat dev ports
+lele-dev cleanup --kill 3000,5173 --yes   # kill eksplisit (wajib --yes)
 ```
 
 Semua command mendukung `--json`:
 
 ```bash
-dev-utils ports --json
+lele-dev ports --json
 # [{"port":3000,"protocol":"TCP","pid":18231,"process":"node",...}]
 ```
 
@@ -82,8 +82,8 @@ dev-utils ports --json
 
 Tidak membutuhkan config untuk berjalan. Jika ada, dibaca dari:
 
-- Linux: `~/.config/dev-utils/config.toml`
-- macOS: `~/Library/Application Support/dev-utils/config.toml`
+- Linux: `~/.config/lele-dev/config.toml`
+- macOS: `~/Library/Application Support/lele-dev/config.toml`
 
 ```toml
 refresh_interval = 3
@@ -95,7 +95,7 @@ show_system = true
 Debug log (default silent, tidak mencampur TUI):
 
 ```bash
-dev-utils --debug   # log → ~/.local/state/dev-utils/dev-utils.log
+lele-dev --debug   # log → ~/.local/state/lele-dev/lele-dev.log
 ```
 
 ## Security
@@ -118,7 +118,7 @@ UI tidak pernah `exec` langsung — hanya memanggil mis. `processService.List()`
 Kode OS-specific terisolasi di `internal/platform/{linux,darwin}`.
 
 ```
-cmd/dev-utils/main.go
+cmd/lele-dev/main.go
 internal/app/            # Bubble Tea root model + router + views
 internal/ui/{dashboard,processes,ports,runtimes,network,tools,containers,projects,system,shared}
 internal/services/{process,port,runtime,network,tools,container,project,system,doctor}

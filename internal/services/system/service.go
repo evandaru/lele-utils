@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"

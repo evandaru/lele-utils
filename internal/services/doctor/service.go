@@ -3,9 +3,9 @@ package doctor
 import (
 	"os/exec"
 
-	"dev-utils/internal/models"
-	"dev-utils/internal/services/runtime"
-	"dev-utils/internal/services/tools"
+	"lele-dev/internal/models"
+	"lele-dev/internal/services/runtime"
+	"lele-dev/internal/services/tools"
 )
 
 // Service — PRD §20 + §36. Diagnostic developer environment.

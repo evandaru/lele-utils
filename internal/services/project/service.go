@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 )
 
 // Service — PRD §16. Deteksi project dari file penanda.

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 )
 
 type spec struct {

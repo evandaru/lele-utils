@@ -29,22 +29,22 @@ func Init(debug bool) {
 	if err != nil {
 		return
 	}
-	logger = log.New(f, "dev-utils ", log.LstdFlags|log.Lshortfile)
+	logger = log.New(f, "lele-dev ", log.LstdFlags|log.Lshortfile)
 }
 
 // FilePath returns platform-appropriate state dir.
 func FilePath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join(os.TempDir(), "dev-utils.log")
+		return filepath.Join(os.TempDir(), "lele-dev.log")
 	}
 	if runtime.GOOS == "darwin" {
-		return filepath.Join(home, "Library", "Application Support", "dev-utils", "dev-utils.log")
+		return filepath.Join(home, "Library", "Application Support", "lele-dev", "lele-dev.log")
 	}
 	if xdg := os.Getenv("XDG_STATE_HOME"); xdg != "" {
-		return filepath.Join(xdg, "dev-utils", "dev-utils.log")
+		return filepath.Join(xdg, "lele-dev", "lele-dev.log")
 	}
-	return filepath.Join(home, ".local", "state", "dev-utils", "dev-utils.log")
+	return filepath.Join(home, ".local", "state", "lele-dev", "lele-dev.log")
 }
 
 // Debugf logs only when debug enabled.

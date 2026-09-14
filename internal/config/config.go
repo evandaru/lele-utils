@@ -27,21 +27,21 @@ func Default() Config {
 }
 
 // Path returns platform-specific config path.
-// Linux: ~/.config/dev-utils/config.toml
-// macOS: ~/Library/Application Support/dev-utils/config.toml
+// Linux: ~/.config/lele-dev/config.toml
+// macOS: ~/Library/Application Support/lele-dev/config.toml
 func Path() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return ""
 	}
 	if runtime.GOOS == "darwin" {
-		return filepath.Join(home, "Library", "Application Support", "dev-utils", "config.toml")
+		return filepath.Join(home, "Library", "Application Support", "lele-dev", "config.toml")
 	}
 	// Linux + fallback: XDG_CONFIG_HOME atau ~/.config
 	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-		return filepath.Join(xdg, "dev-utils", "config.toml")
+		return filepath.Join(xdg, "lele-dev", "config.toml")
 	}
-	return filepath.Join(home, ".config", "dev-utils", "config.toml")
+	return filepath.Join(home, ".config", "lele-dev", "config.toml")
 }
 
 // Load reads config file if present, else returns defaults.

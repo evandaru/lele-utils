@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 
 	gnet "github.com/shirou/gopsutil/v3/net"
 	"github.com/shirou/gopsutil/v3/process"

@@ -1,4 +1,4 @@
-module dev-utils
+module lele-dev
 
 go 1.27.0
 

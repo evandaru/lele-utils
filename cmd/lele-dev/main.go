@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"dev-utils/internal/cli"
+	"lele-dev/internal/cli"
 )
 
 var version = "v0.1.0"

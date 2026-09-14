@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 )
 
 // Detector — PRD §12.

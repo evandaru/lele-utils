@@ -7,18 +7,18 @@ import (
 	"strconv"
 	"strings"
 
-	"dev-utils/internal/app"
-	"dev-utils/internal/config"
-	"dev-utils/internal/logger"
-	"dev-utils/internal/services/container"
-	"dev-utils/internal/services/doctor"
-	"dev-utils/internal/services/network"
-	"dev-utils/internal/services/port"
-	"dev-utils/internal/services/process"
-	"dev-utils/internal/services/project"
-	"dev-utils/internal/services/runtime"
-	"dev-utils/internal/services/system"
-	"dev-utils/internal/services/tools"
+	"lele-dev/internal/app"
+	"lele-dev/internal/config"
+	"lele-dev/internal/logger"
+	"lele-dev/internal/services/container"
+	"lele-dev/internal/services/doctor"
+	"lele-dev/internal/services/network"
+	"lele-dev/internal/services/port"
+	"lele-dev/internal/services/process"
+	"lele-dev/internal/services/project"
+	"lele-dev/internal/services/runtime"
+	"lele-dev/internal/services/system"
+	"lele-dev/internal/services/tools"
 
 	"github.com/spf13/cobra"
 )
@@ -32,9 +32,9 @@ var (
 // NewRoot builds the cobra tree (PRD §20 CLI mode + §21 JSON + §28 debug).
 func NewRoot(version string) *cobra.Command {
 	root := &cobra.Command{
-		Use:   "dev-utils",
+		Use:   "lele-dev",
 		Short: "Developer Workstation Toolkit — TUI + CLI untuk macOS & Linux",
-		Long: `dev-utils adalah toolbox interaktif untuk inspeksi workstation developer:
+		Long: `lele-dev adalah toolbox interaktif untuk inspeksi workstation developer:
 processes, ports, runtimes, network, dev tools, containers, projects, system.
 
 Tanpa argumen → TUI dashboard. Dengan subcommand → CLI non-interaktif
@@ -86,7 +86,7 @@ func newPortsCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "ports [port]",
 		Short:   "List listening ports / detail port",
-		Example: "  dev-utils ports\n  dev-utils ports 3000\n  dev-utils ports --json",
+		Example: "  lele-dev ports\n  lele-dev ports 3000\n  lele-dev ports --json",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc := port.New()
@@ -138,7 +138,7 @@ func newProcessCmd() *cobra.Command {
 		Use:     "process [pid]",
 		Aliases: []string{"processes", "ps"},
 		Short:   "List processes / detail process",
-		Example: "  dev-utils process\n  dev-utils process 18231\n  dev-utils process --json",
+		Example: "  lele-dev process\n  lele-dev process 18231\n  lele-dev process --json",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc := process.New()
@@ -185,7 +185,7 @@ func newRuntimesCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "runtimes",
 		Short:   "Detect programming language runtimes",
-		Example: "  dev-utils runtimes\n  dev-utils runtimes --json",
+		Example: "  lele-dev runtimes\n  lele-dev runtimes --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			items := runtime.New().DetectAll()
 			if useJSON {
@@ -213,7 +213,7 @@ func newNetworkCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "network",
 		Short:   "Show network interfaces, gateway, DNS",
-		Example: "  dev-utils network\n  dev-utils network --json",
+		Example: "  lele-dev network\n  lele-dev network --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			info, err := network.New().Info()
 			if err != nil {
@@ -245,13 +245,13 @@ func newDoctorCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "doctor",
 		Short:   "Diagnostic developer environment",
-		Example: "  dev-utils doctor\n  dev-utils doctor --json",
+		Example: "  lele-dev doctor\n  lele-dev doctor --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := doctor.New().Check()
 			if useJSON {
 				return printJSON(report)
 			}
-			fmt.Println("DEV-UTILS DOCTOR")
+			fmt.Println("LELE-DEV DOCTOR")
 			for _, e := range report.Entries {
 				icon := "✗"
 				switch e.Status {
@@ -415,7 +415,7 @@ func newCleanupCmd() *cobra.Command {
 		Short: "List dev ports for cleanup / kill selected",
 		Long: `Menampilkan kandidat development ports. Tidak pernah cleanup otomatis
 tanpa confirmation (PRD §37). Gunakan --kill 3000,5173 --yes untuk kill eksplisit.`,
-		Example: "  dev-utils cleanup\n  dev-utils cleanup --kill 3000,5173 --yes",
+		Example: "  lele-dev cleanup\n  lele-dev cleanup --kill 3000,5173 --yes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ports, err := port.New().List()
 			if err != nil {

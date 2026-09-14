@@ -3,7 +3,7 @@ package process
 import (
 	"testing"
 
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 )
 
 func TestSearch(t *testing.T) {

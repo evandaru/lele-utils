@@ -8,9 +8,9 @@ import (
 	"strings"
 	"syscall"
 
-	"dev-utils/internal/models"
-	"dev-utils/internal/platform/darwin"
-	"dev-utils/internal/platform/linux"
+	"lele-dev/internal/models"
+	"lele-dev/internal/platform/darwin"
+	"lele-dev/internal/platform/linux"
 )
 
 // Service implements platform.ProcessService (PRD §24).

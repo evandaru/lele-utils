@@ -1,7 +1,7 @@
 package platform
 
 import (
-	"dev-utils/internal/models"
+	"lele-dev/internal/models"
 )
 
 // ProcessService — PRD §24. UI tidak boleh tahu perbedaan OS.

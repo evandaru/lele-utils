@@ -1,7 +1,7 @@
 package app
 
 import (
-	"dev-utils/internal/config"
+	"lele-dev/internal/config"
 
 	tea "github.com/charmbracelet/bubbletea"
 )

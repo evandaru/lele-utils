@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"dev-utils/internal/ui/shared"
+	"lele-dev/internal/ui/shared"
 )
 
 // View renders current screen. Gaya: minimal, dense, keyboard-first (PRD §26).
@@ -62,7 +62,7 @@ func (m Model) View() string {
 }
 
 func (m Model) header(title string) string {
-	return shared.Header.Render(" "+title+" ") + "  " + shared.Dim.Render("dev-utils v0.1.0   esc=back  q=quit")
+	return shared.Header.Render(" "+title+" ") + "  " + shared.Dim.Render("lele-dev v0.1.0   esc=back  q=quit")
 }
 
 func (m Model) renderError() string {
@@ -98,7 +98,7 @@ func (m Model) renderLogs() string {
 
 func (m Model) viewDashboard() string {
 	var b strings.Builder
-	b.WriteString(m.header("dev-utils — Developer Workstation Toolkit") + "\n\n")
+	b.WriteString(m.header("lele-dev — Developer Workstation Toolkit") + "\n\n")
 	procs := fmt.Sprintf("%d running", len(m.processes))
 	ports := fmt.Sprintf("%d listening", len(m.ports))
 	nrt := 0
