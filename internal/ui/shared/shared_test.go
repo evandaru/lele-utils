@@ -25,3 +25,15 @@ func TestFilter(t *testing.T) {
 		t.Errorf("empty filter = %d, want 3", len(got))
 	}
 }
+
+func TestFormatBytes(t *testing.T) {
+	for in, want := range map[int64]string{
+		0: "0 B", 512: "512 B", 1024: "1.0 KB",
+		524 * 1024: "524.0 KB", 55 * 1024 * 1024: "55.0 MB",
+		2 * 1024 * 1024 * 1024: "2.0 GB", -1: "—",
+	} {
+		if got := FormatBytes(in); got != want {
+			t.Errorf("FormatBytes(%d) = %q, want %q", in, got, want)
+		}
+	}
+}

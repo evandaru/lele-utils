@@ -46,12 +46,13 @@ lele-dev
 | `k` | kill process (SIGTERM + konfirmasi; `K` = force SIGKILL konfirmasi kedua) |
 | `o` / `c` | port: open `http://localhost:PORT` / copy nomor port |
 | `s` `t` `r` `l` `k` | container: start / stop / restart / logs / kill |
-| `1`-`8` | dashboard shortcut |
+| `1`-`9` | dashboard shortcut |
 
 Screens: **Dashboard, Processes (+detail & kill), Ports (+detail, kill, open),
 Runtimes (15 bahasa/toolchain), Network (interface/gateway/DNS),
 Dev Tools, Containers (Docker/Podman), Projects (deteksi Go/Node/PHP/Rust/...),
-System (CPU/RAM/disk + environment dengan secrets disembunyikan).**
+System (CPU/RAM/disk + environment dengan secrets disembunyikan),
+Packages (npm/pip/brew/pacman/AUR/apt/cargo/gem/go + ukuran).**
 
 ## CLI (non-interaktif, script/CI/AI-agent friendly)
 
@@ -67,6 +68,8 @@ lele-dev tools            # dev tools
 lele-dev system           # CPU/RAM/disk/OS
 lele-dev project [dir]    # detect project
 lele-dev containers       # docker/podman ps
+lele-dev packages         # package terinstall + ukuran (semua manager)
+lele-dev packages npm     # filter satu manager: npm|pip|brew|pacman|aur|apt|cargo|gem|go
 lele-dev cleanup          # kandidat dev ports
 lele-dev cleanup --kill 3000,5173 --yes   # kill eksplisit (wajib --yes)
 ```
@@ -76,6 +79,27 @@ Semua command mendukung `--json`:
 ```bash
 lele-dev ports --json
 # [{"port":3000,"protocol":"TCP","pid":18231,"process":"node",...}]
+```
+
+### Packages
+
+Sumber yang didukung (yang tidak terinstall otomatis di-skip):
+
+| Manager | Sumber | Ukuran dari |
+|---------|--------|-------------|
+| `npm` | `npm ls -g` (global) | direktori tiap package |
+| `pip` | `pip list` | direktori install (`pip show`) |
+| `brew` | `brew list --versions` | Cellar per formula |
+| `pacman` | `pacman -Qn` (repo) | database `pacman -Qi` |
+| `aur` | `yay/paru -Qm` (fallback `pacman -Qm`) | database `pacman -Qi` |
+| `apt` | `dpkg-query -W` | kolom Installed-Size |
+| `cargo` | `cargo install --list` | binary di `~/.cargo/bin` |
+| `gem` | `gem list` | direktori gem |
+| `go` | `GOPATH/bin` | ukuran binary (versi tak terlacak) |
+
+```bash
+lele-dev packages pacman --json
+# [{"manager":"pacman","name":"nodejs","version":"22.2.0-1","size":"55.1 MB","size_bytes":57776537}]
 ```
 
 ## Config (optional)
@@ -138,7 +162,8 @@ make vet
 
 Unit test: runtime version parsers (15 toolchain), `ss`/`lsof` parser,
 process search + proteksi PID, network integration (loopback),
-project detector (Go/Node/PHP), container `ps` parser, config defaults,
+project detector (Go/Node/PHP), container `ps` parser, package parsers
+(npm/pip/brew/pacman/dpkg/cargo/gem/go) + ukuran, config defaults,
 env sanitizer + filter.
 
 ## Roadmap

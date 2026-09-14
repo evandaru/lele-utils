@@ -41,6 +41,8 @@ func (m Model) View() string {
 		body = m.viewProjects()
 	case ScreenSystem:
 		body = m.viewSystem()
+	case ScreenPackages:
+		body = m.viewPackages()
 	default:
 		body = m.viewDashboard()
 	}
@@ -117,6 +119,10 @@ func (m Model) viewDashboard() string {
 			ntools++
 		}
 	}
+	npkgs := -1
+	if m.pkgsLoaded {
+		npkgs = len(m.packages)
+	}
 	if m.loading {
 		b.WriteString(shared.Dim.Render("  scanning system (concurrent)...") + "\n\n")
 	}
@@ -125,12 +131,17 @@ func (m Model) viewDashboard() string {
 	b.WriteString(fmt.Sprintf("  Runtimes        %d detected\n", nrt))
 	b.WriteString(fmt.Sprintf("  Network         %d interfaces\n", nif))
 	b.WriteString(fmt.Sprintf("  Dev Tools       %d detected\n", ntools))
+	if npkgs >= 0 {
+		b.WriteString(fmt.Sprintf("  Packages        %d installed\n", npkgs))
+	} else {
+		b.WriteString("  Packages        scanning...\n")
+	}
 	if m.project != nil && len(m.project.Languages) > 0 {
 		b.WriteString(fmt.Sprintf("\n  PROJECT  %s  [%s]\n", m.project.Name, strings.Join(m.project.Languages, ", ")))
 	}
 	b.WriteString("\n")
-	items := []string{"Processes", "Ports", "Runtimes", "Network", "Dev Tools", "Containers", "Projects", "System"}
-	descs := []string{"Running processes", "Listening ports", "Programming languages", "Network information", "Installed developer tools", "Docker / Podman", "Detect current project", "CPU / RAM / Disk"}
+	items := []string{"Processes", "Ports", "Runtimes", "Network", "Dev Tools", "Containers", "Projects", "System", "Packages"}
+	descs := []string{"Running processes", "Listening ports", "Programming languages", "Network information", "Installed developer tools", "Docker / Podman", "Detect current project", "CPU / RAM / Disk", "Installed packages + sizes"}
 	for i, it := range items {
 		marker := fmt.Sprintf("  %d  %-12s %s", i+1, it, descs[i])
 		if i == m.cursor {
@@ -140,7 +151,7 @@ func (m Model) viewDashboard() string {
 		}
 	}
 	b.WriteString("\n  q  Quit\n")
-	b.WriteString("\n" + shared.HelpLine("[1-8] open"))
+	b.WriteString("\n" + shared.HelpLine("[1-9] open"))
 	return shared.Box.Render(b.String())
 }
 
@@ -432,6 +443,54 @@ func (m Model) viewSystem() string {
 		b.WriteString(fmt.Sprintf("  %-8s %s\n", kv.k, shared.Trunc(shared.SanitizeEnv(kv.k, kv.v), 60)))
 	}
 	b.WriteString("\n" + shared.HelpLine("[r] refresh"))
+	return shared.Box.Render(b.String())
+}
+
+// ---- Packages (npm/pip/brew/pacman/AUR/apt/cargo/gem/go) ----
+
+func (m Model) viewPackages() string {
+	var b strings.Builder
+	b.WriteString(m.header(fmt.Sprintf("PACKAGES — %d installed", len(m.filteredPackages()))) + "\n\n")
+	if !m.pkgsLoaded {
+		b.WriteString(shared.Dim.Render("  (scanning package managers...)"))
+		return shared.Box.Render(b.String())
+	}
+	// Ringkasan per manager.
+	counts := map[string]int{}
+	for _, p := range m.packages {
+		counts[p.Manager]++
+	}
+	var parts []string
+	for _, mgr := range []string{"npm", "pip", "brew", "pacman", "aur", "apt", "cargo", "gem", "go"} {
+		if counts[mgr] > 0 {
+			parts = append(parts, fmt.Sprintf("%s:%d", mgr, counts[mgr]))
+		}
+	}
+	if len(parts) > 0 {
+		b.WriteString(shared.Dim.Render("  "+strings.Join(parts, "  ")) + "\n\n")
+	}
+	b.WriteString(fmt.Sprintf("  %-10s %-28s %-16s %s\n", "MANAGER", "NAME", "VERSION", "SIZE"))
+	b.WriteString("  " + strings.Repeat("-", 72) + "\n")
+	items := m.filteredPackages()
+	if len(items) == 0 {
+		b.WriteString(shared.Dim.Render("  (no packages match — atau package manager tidak terinstall)\n"))
+	}
+	max := 22
+	start := 0
+	if m.cursor > max-1 {
+		start = m.cursor - max + 1
+	}
+	for i := start; i < len(items) && i < start+max; i++ {
+		p := m.packages[items[i]]
+		line := fmt.Sprintf("  %-10s %-28s %-16s %s",
+			p.Manager, shared.Trunc(p.Name, 28), shared.Trunc(p.Version, 16), p.Size)
+		if i == m.cursor {
+			b.WriteString(shared.Selected.Render(line) + "\n")
+		} else {
+			b.WriteString(line + "\n")
+		}
+	}
+	b.WriteString("\n" + shared.HelpLine("[/] search  [r] refresh"))
 	return shared.Box.Render(b.String())
 }
 

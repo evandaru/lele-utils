@@ -13,6 +13,7 @@ import (
 	"lele-dev/internal/services/container"
 	"lele-dev/internal/services/doctor"
 	"lele-dev/internal/services/network"
+	"lele-dev/internal/services/packages"
 	"lele-dev/internal/services/port"
 	"lele-dev/internal/services/process"
 	"lele-dev/internal/services/project"
@@ -35,7 +36,7 @@ func NewRoot(version string) *cobra.Command {
 		Use:   "lele-dev",
 		Short: "Developer Workstation Toolkit — TUI + CLI untuk macOS & Linux",
 		Long: `lele-dev adalah toolbox interaktif untuk inspeksi workstation developer:
-processes, ports, runtimes, network, dev tools, containers, projects, system.
+processes, ports, runtimes, network, dev tools, containers, projects, packages, system.
 
 Tanpa argumen → TUI dashboard. Dengan subcommand → CLI non-interaktif
 (cocok untuk shell script, CI, AI agent) dengan flag --json.`,
@@ -63,6 +64,7 @@ Tanpa argumen → TUI dashboard. Dengan subcommand → CLI non-interaktif
 		newSystemCmd(),
 		newProjectCmd(),
 		newContainersCmd(),
+		newPackagesCmd(),
 		newCleanupCmd(),
 	)
 	return root
@@ -396,6 +398,50 @@ func newContainersCmd() *cobra.Command {
 			fmt.Printf("%-16s %-24s %-10s %-10s %s\n", "NAME", "IMAGE", "RUNTIME", "STATE", "PORTS")
 			for _, ct := range items {
 				fmt.Printf("%-16s %-24s %-10s %-10s %s\n", ct.Name, ct.Image, ct.Runtime, ct.State, ct.Ports)
+			}
+			return nil
+		},
+	}
+	c.Flags().BoolVar(&useJSON, "json", false, "output JSON")
+	return c
+}
+
+// ---- packages ----
+
+func newPackagesCmd() *cobra.Command {
+	var useJSON bool
+	c := &cobra.Command{
+		Use:   "packages [manager]",
+		Short: "List installed packages + sizes (npm/pip/brew/pacman/aur/apt/cargo/gem/go)",
+		Long: `Menampilkan package terinstall beserta ukurannya dari package manager
+yang tersedia: npm (global), pip, brew, pacman (repo), aur (yay/paru),
+apt (dpkg), cargo, gem, go (bin). Manager yang tidak terinstall di-skip.`,
+		Example: "  lele-dev packages\n  lele-dev packages npm\n  lele-dev packages pacman --json",
+		Args:    cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			manager := ""
+			if len(args) > 0 {
+				manager = args[0]
+			}
+			items, err := packages.New().List(manager)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Unable to inspect packages.\n\nReason:\n%s\n", err.Error())
+				return err
+			}
+			if useJSON {
+				if items == nil {
+					fmt.Println("[]")
+					return nil
+				}
+				return printJSON(items)
+			}
+			if len(items) == 0 {
+				fmt.Println("(no packages detected — package manager tidak terinstall?)")
+				return nil
+			}
+			fmt.Printf("%-10s %-28s %-16s %s\n", "MANAGER", "NAME", "VERSION", "SIZE")
+			for _, p := range items {
+				fmt.Printf("%-10s %-28s %-16s %s\n", p.Manager, trunc(p.Name, 28), trunc(p.Version, 16), p.Size)
 			}
 			return nil
 		},

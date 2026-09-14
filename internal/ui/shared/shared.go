@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -65,4 +66,22 @@ func Trunc(s string, n int) string {
 		return s[:n]
 	}
 	return s[:n-3] + "..."
+}
+
+// FormatBytes renders byte counts human-readable (B/KB/MB/GB).
+func FormatBytes(b int64) string {
+	if b < 0 {
+		return "—"
+	}
+	if b < 1024 {
+		return fmt.Sprintf("%d B", b)
+	}
+	f := float64(b) / 1024
+	for _, u := range []string{"KB", "MB", "GB"} {
+		if f < 1024 || u == "GB" {
+			return fmt.Sprintf("%.1f %s", f, u)
+		}
+		f /= 1024
+	}
+	return fmt.Sprintf("%.1f GB", f)
 }

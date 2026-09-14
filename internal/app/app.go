@@ -12,6 +12,7 @@ import (
 	"lele-dev/internal/services/container"
 	"lele-dev/internal/services/doctor"
 	"lele-dev/internal/services/network"
+	"lele-dev/internal/services/packages"
 	"lele-dev/internal/services/port"
 	"lele-dev/internal/services/process"
 	"lele-dev/internal/services/project"
@@ -39,6 +40,7 @@ const (
 	ScreenContainers
 	ScreenProjects
 	ScreenSystem
+	ScreenPackages
 )
 
 func (s Screen) String() string {
@@ -63,6 +65,8 @@ func (s Screen) String() string {
 		return "Projects"
 	case ScreenSystem:
 		return "System"
+	case ScreenPackages:
+		return "Packages"
 	default:
 		return "Dashboard"
 	}
@@ -92,6 +96,9 @@ type projectMsg struct {
 	info *models.ProjectInfo
 	err  error
 }
+type packagesMsg struct {
+	items []models.Package
+}
 type killResultMsg struct {
 	msg string
 	err error
@@ -119,6 +126,8 @@ type Model struct {
 	containers []models.Container
 	sysinfo    *models.SystemInfo
 	project    *models.ProjectInfo
+	packages   []models.Package
+	pkgsLoaded bool
 
 	detailIdx int // index into current filtered list
 	confirm   *confirmState
@@ -133,6 +142,7 @@ type Model struct {
 	rtSvc   *rtservice.Service
 	netSvc  *network.Service
 	toolSvc *tools.Service
+	pkgSvc  *packages.Service
 	contSvc *container.Service
 	projSvc *project.Service
 	sysSvc  *system.Service
@@ -165,6 +175,7 @@ func New(cfg config.Config) Model {
 		projSvc: project.New(),
 		sysSvc:  system.New(),
 		docSvc:  doctor.New(),
+		pkgSvc:  packages.New(),
 		search:  ti,
 		loading: true,
 	}
@@ -191,6 +202,7 @@ func (m Model) Init() tea.Cmd {
 		loadContainers(m.contSvc),
 		loadSystem(m.sysSvc),
 		loadProject(m.projSvc),
+		loadPackages(m.pkgSvc),
 	)
 }
 
@@ -236,6 +248,15 @@ func loadProject(s *project.Service) tea.Cmd {
 	return func() tea.Msg {
 		info, err := s.Inspect("")
 		return projectMsg{info, err}
+	}
+}
+func loadPackages(s *packages.Service) tea.Cmd {
+	return func() tea.Msg {
+		items, _ := s.List("")
+		if items == nil {
+			items = []models.Package{}
+		}
+		return packagesMsg{items}
 	}
 }
 
@@ -311,6 +332,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err == nil {
 			m.project = msg.info
 		}
+		return m, nil
+	case packagesMsg:
+		m.packages = msg.items
+		m.pkgsLoaded = true
+		m.loading = false
 		return m, nil
 	case killResultMsg:
 		m.confirm = nil
@@ -456,6 +482,8 @@ func (m Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.portDetailKey(key)
 	case ScreenContainers:
 		return m.containersKey(key)
+	case ScreenPackages:
+		return m.packagesKey(key)
 	}
 	return m, nil
 }
@@ -478,6 +506,8 @@ func (m Model) refreshCurrent() tea.Cmd {
 		return loadSystem(m.sysSvc)
 	case ScreenProjects:
 		return loadProject(m.projSvc)
+	case ScreenPackages:
+		return loadPackages(m.pkgSvc)
 	default:
 		return tea.Batch(
 			loadProcesses(m.procSvc), loadPorts(m.portSvc),
@@ -507,6 +537,8 @@ func (m Model) enter() (tea.Model, tea.Cmd) {
 			m.screen = ScreenProjects
 		case 7:
 			m.screen = ScreenSystem
+		case 8:
+			m.screen = ScreenPackages
 		}
 		m.cursor = 0
 		m.query = ""
@@ -553,6 +585,8 @@ func (m Model) dashboardKey(key string) (tea.Model, tea.Cmd) {
 		m.screen = ScreenProjects
 	case "8":
 		m.screen = ScreenSystem
+	case "9":
+		m.screen = ScreenPackages
 	default:
 		return m, nil
 	}
@@ -575,6 +609,14 @@ func (m *Model) filteredPorts() []int {
 	var rows []string
 	for _, p := range m.ports {
 		rows = append(rows, fmt.Sprintf("%d %s %s %s", p.Port, p.ProcessName, p.Address, p.Protocol))
+	}
+	return shared.Filter(rows, m.query)
+}
+
+func (m *Model) filteredPackages() []int {
+	var rows []string
+	for _, p := range m.packages {
+		rows = append(rows, fmt.Sprintf("%s %s %s", p.Manager, p.Name, p.Version))
 	}
 	return shared.Filter(rows, m.query)
 }
@@ -799,6 +841,24 @@ func (m Model) containersKey(key string) (tea.Model, tea.Cmd) {
 			}
 			return containerActionMsg{fmt.Sprintf("%s killed.", name), nil}
 		}
+	}
+	return m, nil
+}
+
+// packagesKey — list read-only: navigasi + search + refresh (global).
+func (m Model) packagesKey(key string) (tea.Model, tea.Cmd) {
+	items := m.filteredPackages()
+	switch key {
+	case "down", "j":
+		if m.cursor < len(items)-1 {
+			m.cursor++
+		}
+		return m, nil
+	case "up":
+		if m.cursor > 0 {
+			m.cursor--
+		}
+		return m, nil
 	}
 	return m, nil
 }

@@ -109,3 +109,22 @@ type DoctorReport struct {
 	Warnings int           `json:"warnings"`
 	Missing  int           `json:"missing"`
 }
+
+// Package is one installed third-party package from a package manager
+// (npm global, pip, brew, pacman, AUR, apt, cargo, gem, go binaries).
+type Package struct {
+	Manager   string `json:"manager"`
+	Name      string `json:"name"`
+	Version   string `json:"version"`
+	Size      string `json:"size"`       // human readable, "—" bila tak diketahui
+	SizeBytes int64  `json:"size_bytes"` // 0 bila tak diketahui
+	// SizeDir menunjuk direktori yang diukur ukurannya (tidak di-JSON-kan).
+	SizeDir string `json:"-"`
+}
+
+// PackageManager describes one supported package source.
+type PackageManager struct {
+	Name      string `json:"name"`
+	Command   string `json:"command"`
+	Installed bool   `json:"installed"`
+}
